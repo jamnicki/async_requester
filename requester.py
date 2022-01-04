@@ -77,12 +77,11 @@ class AsyncRequester:
             return await response.text()
 
     async def upload(self, dir: str) -> List[FileId] | None:
-        return await asyncio.gather(
-            *[
-                self.upload_single(os.path.join(dir, filename))
-                for filename in os.listdir(dir)
-            ]
-        )
+        upload_tasks = [
+            self.upload_single(os.path.join(dir, filename))
+            for filename in os.listdir(dir)
+        ]
+        return await asyncio.gather(*upload_tasks)
 
     async def start_task(self, file_id: FileId, lpmn: Lpmn) -> TaskId | None:
         headers = {"Content-Type": "application/json"}
@@ -109,12 +108,8 @@ class AsyncRequester:
     async def run(
             self, file_ids: Iterable[FileId],
             lpmn: Lpmn) -> List[FileId] | None:
-        return await asyncio.gather(
-            *[
-                self.run_single(file_id, lpmn)
-                for file_id in file_ids
-            ]
-        )
+        run_tasks = [self.run_single(file_id, lpmn) for file_id in file_ids]
+        return await asyncio.gather(*run_tasks)
 
     async def download_single(self, file_id: FileId, dst_path: str) -> None:
         Path(dst_path).mkdir(parents=True, exist_ok=True)
@@ -132,12 +127,11 @@ class AsyncRequester:
     async def download(
             self, file_ids: Iterable[FileId], dst_path: str) -> None:
         Path(dst_path).mkdir(parents=True, exist_ok=True)
-        await asyncio.gather(
-            *[
-                self.download_single(*_file_ids, dst_path)
-                for _file_ids in file_ids
-            ]
-        )
+        download_tasks = [
+            self.download_single(*_file_ids, dst_path)
+            for _file_ids in file_ids
+        ]
+        await asyncio.gather(*download_tasks)
 
     async def close_session(self) -> None:
         await self.session.close()
