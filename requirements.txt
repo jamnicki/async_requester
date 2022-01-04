@@ -1,0 +1,4 @@
+aiohttp[speedups]
+aiofiles
+
+flake8  # linter
