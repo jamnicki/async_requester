@@ -45,13 +45,13 @@ class AsyncRequester:
                     case "ERROR":
                         raise Exception(f"{task_id=} {status=}, {res_data=}")
                     case "QUEUE":
-                        logging.info(f"Task {task_id} in queue...")
+                        logging.debug(f"Task {task_id} in queue...")
                     case "PROCESSING":
-                        logging.info(f"Processing {task_id}...")
+                        logging.debug(f"Processing {task_id}...")
                     case "CANCEL":
                         logging.warning(f"Task {task_id} has been canceled!")
                     case "DONE":
-                        logging.info(f"Task {task_id} done.")
+                        logging.debug(f"Task {task_id} done.")
                         file_ids = set()
                         for processed_file in res_data["value"]:
                             file_id = processed_file["fileID"]
@@ -73,7 +73,7 @@ class AsyncRequester:
                 url=url, data=content, headers=headers) as response:
             if not response.ok:
                 return None, response.status
-            logging.info(f"Uploading {filepath}...")
+            logging.debug(f"Uploading {filepath}...")
             return await response.text()
 
     async def upload(self, dir: str) -> List[FileId] | None:
@@ -122,7 +122,7 @@ class AsyncRequester:
             filepath = os.path.join(dst_path, filename)
             async with aiofiles.open(filepath, "wb") as file:
                 await file.write(file_content)
-                logging.info(f"Downloading {file_id}...")
+                logging.debug(f"Downloading {file_id}...")
 
     async def download(
             self, file_ids: Iterable[FileId], dst_path: str) -> None:
@@ -135,4 +135,4 @@ class AsyncRequester:
 
     async def close_session(self) -> None:
         await self.session.close()
-        logging.info("Closing client session.")
+        logging.debug("Closing client session.")

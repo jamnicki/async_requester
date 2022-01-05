@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 async def process(requester, filepath, lpmn, i):
     logging.info(f"Process #{i}: Uploading...")
     file_id = await requester.upload_single(filepath)
-    logging.info(f"Process #{i}: Task started...")
+    logging.info(f"Process #{i}: Task started and waiting for status...")
     processed_files = await requester.run_single(file_id, lpmn)
     logging.info(f"Process #{i}: Downloading...")
     await requester.download_single(*processed_files, "./downloads")
